@@ -1,10 +1,13 @@
 workflows:
   my-workflow:
     scripts:
+      - name: Do the modifications needed to build
+        script: | 
+          set -e # exit on first failed command
+          mv CodeSigning.xcconfig.sample CodeSigning.xcconfig
+          
       - name: Add provisioning profiles
         script: |
-          set -e # exit on first failed command
-
           PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$PROFILES_HOME"
           echo ${PROVISIONING_PROFILE?} | base64 --decode > "$PROFILES_HOME/$(uuidgen).mobileprovision"
@@ -23,7 +26,7 @@ workflows:
         script: xcode-project use-profiles
       - name: Build ipa for distribution
         script: xcode-project build-ipa \
-          --workspace "${XCODE_WORKSPACE?}" \
-          --scheme "${XCODE_SCHEME?}"
+                    --workspace "${XCODE_WORKSPACE?}" \
+                    --scheme "${XCODE_SCHEME?}"
     artifacts:
       - build/ios/ipa/*.ipa
